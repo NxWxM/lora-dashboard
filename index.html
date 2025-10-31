@@ -1,0 +1,23 @@
+<!doctype html><html><head>
+<style>
+  .centered-text {
+    text-align: center;}
+</style>  
+</head>
+<body>
+<h3 class="centered-text"><b>Live sensor data</h3></b>
+<ul id="list"></ul>
+<script>
+const ul = document.getElementById('list');
+const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+ws.onmessage = evt => {
+  const obj = JSON.parse(evt.data);
+  const li = document.createElement('li');
+  li.textContent = `${obj.sen_1} - ${obj.sen_2} - ${obj.sen_3} - ${obj.sen_4} - ${obj.label}`;
+  ul.prepend(li);
+}
+ws.onopen = () => console.log("ws open");
+ws.onerror = (e) => console.error("ws error", e);
+ws.onclose = () => console.log("ws closed");
+</script>
+</body></html>
