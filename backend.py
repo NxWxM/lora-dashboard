@@ -7,6 +7,7 @@ import sqlite3
 
 app = FastAPI()
 clients = set()
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 conn = sqlite3.connect("sensor.db", check_same_thread=False)
 c = conn.cursor()
