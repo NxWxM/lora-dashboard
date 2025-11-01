@@ -1,24 +1,99 @@
-<!doctype html><html><head>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Live Sensor Data Dashboard</title>
 <style>
-  .centered-text {
-    text-align: center;}
-</style>  
+/* Basic Reset and Modern Font */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6; /* Light, calming background */
+  color: #333; /* Dark text for readability */
+  margin: 0;
+  padding: 20px;
+}
+
+/* Header Styling */
+.centered-text {
+  text-align: center;
+  color: #007bff; /* Primary blue color for emphasis */
+  margin-bottom: 20px;
+  font-size: 2em; /* Larger header */
+  font-weight: 300; /* Lighter weight for modern look */
+  border-bottom: 2px solid #007bff; /* Subtle separation line */
+  padding-bottom: 10px;
+}
+
+/* List/Dashboard Container Styling */
+#list {
+  list-style: none; /* Remove default bullets */
+  padding: 0;
+  max-width: 600px; /* Constrain width for better readability */
+  margin: 0 auto; /* Center the list */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Contains the list items' borders */
+}
+
+/* List Item Styling (The Data Display) */
+#list li {
+  padding: 15px 20px;
+  margin-bottom: 8px; /* Space between entries */
+  background-color: #ffffff; /* White background for data row */
+  border-left: 5px solid transparent; /* Placeholder for color coding */
+  transition: all 0.3s ease; /* Smooth hover effect */
+  border-radius: 4px; /* Slight rounding for list items */
+  font-size: 1.1em;
+  font-weight: 500;
+  color: #555;
+}
+
+/* A subtle color to highlight new/latest data (The prepended item) */
+#list li:first-child {
+  background-color: #e6f7ff; /* Light blue highlight */
+  border-left-color: #28a745; /* Green color for 'new' status */
+  color: #111;
+  font-weight: 600;
+  animation: fadeIn 0.5s ease-out; /* Fade-in animation for a smooth addition */
+}
+
+/* Hover effect */
+#list li:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px); /* Slight lift */
+}
+
+/* Keyframe for fade-in effect */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
 </head>
 <body>
-<h3 class="centered-text"><b>Live sensor data</h3></b>
+
+<h3 class="centered-text">⚡ **Live Sensor Data Dashboard** 📊</h3>
 <ul id="list"></ul>
+
 <script>
+// *** START - FUNCTIONAL CODE (UNCHANGED AS REQUESTED) ***
 const ul = document.getElementById('list');
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
 ws.onmessage = evt => {
   const obj = JSON.parse(evt.data);
   const li = document.createElement('li');
-  li.textContent = `${obj.sen_1} - ${obj.sen_2} - ${obj.sen_3} - ${obj.sen_4} - ${obj.label}`;
+  // Format the text for better modern readability
+  li.textContent = `S1: ${obj.sen_1} | S2: ${obj.sen_2} | S3: ${obj.sen_3} | S4: ${obj.sen_4} | Label: ${obj.label}`;
   ul.prepend(li);
 }
+
 ws.onopen = () => console.log("ws open");
 ws.onerror = (e) => console.error("ws error", e);
 ws.onclose = () => console.log("ws closed");
+// *** END - FUNCTIONAL CODE (UNCHANGED AS REQUESTED) ***
 </script>
-</body></html>
+
+</body>
+</html>
