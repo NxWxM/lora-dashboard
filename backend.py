@@ -4,6 +4,7 @@ from fastapi import Request
 import asyncio
 import json
 import sqlite3
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 clients = set()
