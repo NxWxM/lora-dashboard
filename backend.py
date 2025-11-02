@@ -8,7 +8,12 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 clients = set()
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
+@app.get("/")
+async def get_index():
+    return FileResponse("static/index.html")
 
 conn = sqlite3.connect("sensor.db", check_same_thread=False)
 c = conn.cursor()
