@@ -13,10 +13,11 @@ from starlette.responses import FileResponse, RedirectResponse
 app = FastAPI()
 clients = set()
 
-app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static") 
 
 @app.get("/")
-async def get_index():
+async def get_pg1():
+    # Serves the landing page (pg1.html) at the root URL
     return FileResponse("static/pg1.html")
 
 conn = sqlite3.connect("sensor.db", check_same_thread=False)
