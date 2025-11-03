@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles 
 from pydantic import BaseModel 
-from starlette.responses import FileResponse
+from starlette.responses import FileResponse, RedirectResponse # <-- IMPORTANT: RedirectResponse is added
 from starlette.exceptions import HTTPException
 from starlette.status import HTTP_404_NOT_FOUND
 import asyncio
@@ -10,7 +10,7 @@ import sqlite3
 import datetime
 import os 
 
-# --- Pydantic Model (Requires 'pydantic' in requirements.txt) ---
+# --- Pydantic Model for Data Integrity (Requires 'pydantic' in requirements.txt) ---
 class SensorData(BaseModel):
     sen_1: float
     sen_2: float
@@ -22,28 +22,34 @@ app = FastAPI()
 clients = set()
 
 # --- Static Files Mount ---
-# This is for assets like CSS/JS/images/etc.
+# This is for assets like CSS/JS/images/etc., served at /static/
 app.mount("/static", StaticFiles(directory="static"), name="static") 
 
-# Helper function to serve files and log 404s
+# Helper function to serve files reliably
 def serve_html_file(filename):
     file_path = os.path.join("static", filename)
     if not os.path.exists(file_path):
+        # If the file doesn't exist, log an error and raise a 404
         print(f"[FILE_ERROR] File not found: {file_path}")
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"File {filename} not found.")
     return FileResponse(file_path)
 
 
-# --- Root Endpoint: Guarantees pg1.html is served at / ---
+# --- Root Endpoint: Forces Redirect to pg1.html ---
 @app.get("/")
 async def get_root():
-    print("[ROUTE] --- Serving Root (/) -> pg1.html ---")
+    # CRITICAL FIX: Redirect the browser to the explicit pg1.html route.
+    # This bypasses any server-side static file prioritization.
+    return RedirectResponse(url="/pg1.html", status_code=307) 
+
+# --- Landing Page Endpoint: Guarantees pg1.html is served at /pg1.html ---
+@app.get("/pg1.html")
+async def get_pg1_page():
     return serve_html_file("pg1.html")
 
 # --- Dashboard Endpoint: Guarantees dashboard.html is served at /dashboard.html ---
 @app.get("/dashboard.html")
 async def get_dashboard():
-    print("[ROUTE] Serving /dashboard.html")
     return serve_html_file("dashboard.html")
 
 
@@ -91,7 +97,7 @@ async def post_sensor(data: SensorData):
     payload = data.dict()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # 1. CRITICAL LOGGING STEP
+    # 1. Log the received data
     print(f"[POST] {timestamp} Received data: {payload}")
     
     # 2. Save data to the database
