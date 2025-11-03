@@ -1,6 +1,9 @@
 # backend.py
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi import Request
+from pydantic import BaseModel 
+import datetime
+import os 
 import asyncio
 import json
 import sqlite3
@@ -69,3 +72,4 @@ async def post_sensor(request: Request):
             print("broadcast error:", e)
     return {"status": "ok", "received": payload}
 
+#i add a pg1 html to static folder and updated backedn as this .. But now server is not starting properly.it says timed
