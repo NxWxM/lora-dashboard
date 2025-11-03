@@ -14,7 +14,7 @@ app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
 @app.get("/")
 async def get_index():
-    return FileResponse("static/index.html")
+    return FileResponse("static/pg1.html")
 
 conn = sqlite3.connect("sensor.db", check_same_thread=False)
 c = conn.cursor()
