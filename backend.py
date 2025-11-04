@@ -46,6 +46,10 @@ async def get_root():
 @app.get("/pg1.html")
 async def get_pg1_page():
     return serve_html_file("pg1.html")
+@app.get("/homepage.html")
+async def get_pg1_page():
+    return serve_html_file("pg1.html")
+
 
 # --- Dashboard Endpoint: Guarantees dashboard.html is served at /dashboard.html ---
 @app.get("/dashboard.html")
