@@ -109,7 +109,7 @@ async def post_sensor(data: SensorData):
     # 2. Save data to the database
     try:
         c.execute(
-            "INSERT INTO sensor_data (sensor_1, sensor_2, sensor_3, sensor_4,sensor_5, label) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO sensor_data (sensor_1, sensor_2, sensor_3, sensor_4, sensor_5, label) VALUES (?, ?, ?, ?, ?,?)",
             (payload["sen_1"], payload["sen_2"], payload["sen_3"], payload["sen_4"],payload["sen_5"], payload["label"])
         )
         conn.commit()
