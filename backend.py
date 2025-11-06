@@ -16,6 +16,7 @@ class SensorData(BaseModel):
     sen_2: float
     sen_3: float
     sen_4: float
+    sen_5: float
     label: str
 
 app = FastAPI()
@@ -67,6 +68,7 @@ c.execute("""CREATE TABLE IF NOT EXISTS sensor_data (
     sensor_2 FLOAT,
     sensor_3 FLOAT,
     sensor_4 FLOAT,
+    sensor_5 FLOAT,
     label TEXT
 )""")
 conn.commit()    
@@ -107,8 +109,8 @@ async def post_sensor(data: SensorData):
     # 2. Save data to the database
     try:
         c.execute(
-            "INSERT INTO sensor_data (sensor_1, sensor_2, sensor_3, sensor_4, label) VALUES (?, ?, ?, ?, ?)",
-            (payload["sen_1"], payload["sen_2"], payload["sen_3"], payload["sen_4"], payload["label"])
+            "INSERT INTO sensor_data (sensor_1, sensor_2, sensor_3, sensor_4,,sensor_5, label) VALUES (?, ?, ?, ?, ?)",
+            (payload["sen_1"], payload["sen_2"], payload["sen_3"], payload["sen_4"],payload["sen_5"], payload["label"])
         )
         conn.commit()
     except Exception as e:
