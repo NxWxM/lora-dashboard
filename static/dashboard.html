@@ -1,235 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Live Sensor Data — Underground Safety</title>
-  <style>
-    :root{
-      --bg-1:#070708; --bg-2:#0f1316; --muted:#bfc9cc;
-      --accent:#00bcd4; --accent-2:#00e5ff; --good:#28a745;
-      --warn:#ffc107; --bad:#ff5252;
-    }
-    html,body{ height:100%; margin:0; font-family:"Poppins","Segoe UI",Tahoma,sans-serif;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(0,188,212,0.04), transparent),
-                  linear-gradient(135deg,var(--bg-1),var(--bg-2));
-      color:var(--muted); padding:20px; box-sizing:border-box;
-    }
-
-    /* topbar kept minimal - same structure as your version */
-    .topbar{ display:flex; gap:12px; align-items:center; justify-content:space-between; max-width:1100px; margin:0 auto 18px; }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .logo{ width:56px; height:56px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; font-weight:700; color:#041014; font-size:18px; }
-    h1{ margin:0; font-size:1.15rem; color:var(--accent-2) }
-    .subtitle{ margin:0; font-size:0.85rem; color:#9fb6bb; }
-
-    .controls{ display:flex; gap:10px; align-items:center; }
-    .btn{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:600; cursor:pointer; transition:all .18s ease; }
-    .btn.primary{ background: linear-gradient(90deg,var(--accent),var(--accent-2)); color:#051314; border:none; }
-    .btn:hover{ transform: translateY(-3px); }
-
-    .status{ display:flex; gap:10px; align-items:center; font-size:0.9rem; color:#b7c9cc; }
-    .dot{ width:12px; height:12px; border-radius:50%; background:var(--warn); box-shadow:0 4px 12px rgba(0,0,0,0.6); }
-    .dot.connected{ background:var(--good); } .dot.disconnected{ background:var(--bad); }
-
-    .container{ max-width:1100px; margin:0 auto; display:grid; grid-template-columns: 1fr 360px; gap:20px; }
-
-    .feed{ background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border:1px solid rgba(255,255,255,0.03); padding:14px; border-radius:12px; min-height:60vh; overflow:auto; }
-    .feed-empty{ color:#88999b; text-align:center; padding:40px 10px; }
-
-    ul#list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
-
-    /* === presentation changes only: wider, single-line cards === */
-    li.data-card{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:14px 18px; border-radius:12px; border:1px solid rgba(255,255,255,0.03);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
-      font-size:0.98rem;
-    }
-    .left{ display:flex; gap:12px; align-items:center; min-width:0; flex:1; }
-    .badge-timestamp{ font-size:0.82rem; color:#91b7bb; padding:8px 12px; border-radius:10px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); white-space:nowrap; }
-    .values{ display:flex; gap:10px; align-items:center; flex-wrap:nowrap; overflow:auto; -webkit-overflow-scrolling:touch; }
-    .chip{ background: rgba(255,255,255,0.01); border-radius:10px; padding:8px 12px; font-weight:700; font-size:0.95rem; color:var(--muted); border:1px solid rgba(255,255,255,0.02); min-width:90px; text-align:center; white-space:nowrap; }
-    .label{ margin-left:12px; font-weight:800; color:#d9f7fb; white-space:nowrap; }
-    .right{ display:flex; gap:10px; align-items:center; white-space:nowrap; }
-    .count{ font-size:0.95rem; color:#9fdfe6; font-weight:800; padding:8px 12px; border-radius:10px; background: rgba(0,188,212,0.06); border:1px solid rgba(0,188,212,0.06); min-width:74px; text-align:center; }
-
-    .sidebar{ padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); min-height:60vh; }
-
-    @media (max-width:900px){ .container{ grid-template-columns:1fr; } .sidebar{ order:2 } .feed{ order:1 } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Sensor Data — Underground Safety</title>
+<style>
+  :root {
+    --bg-1:#070708; --bg-2:#0f1316; --muted:#bfc9cc;
+    --accent:#00bcd4; --accent-2:#00e5ff;
+    --good:#28a745; --warn:#ffc107; --bad:#ff5252;
+  }
+  body {
+    font-family:"Poppins","Segoe UI",sans-serif;
+    background:linear-gradient(135deg,var(--bg-1),var(--bg-2));
+    color:var(--muted); margin:0; padding:20px;
+  }
+  .topbar {
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;
+  }
+  h1 { color:var(--accent-2); font-size:1.2rem; margin:0; }
+  .btn {
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#041014; border:none; padding:8px 14px; border-radius:10px; font-weight:600;
+    cursor:pointer;
+  }
+  .dot {
+    width:12px; height:12px; border-radius:50%;
+    display:inline-block; margin-right:6px;
+  }
+  .connected { background:var(--good); }
+  .disconnected { background:var(--bad); }
+  .container {
+    max-width:1200px; margin:auto;
+    display:grid; grid-template-columns: 1fr 360px; gap:20px;
+  }
+  .feed {
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:12px; padding:14px; min-height:60vh;
+  }
+  ul#list {
+    list-style:none; padding:0; margin:0;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  li.data-card {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 20px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:12px;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .badge-timestamp {
+    font-size:0.85rem; color:#91b7bb;
+  }
+  .values {
+    display:flex; gap:12px; flex-wrap:nowrap;
+    justify-content:space-between;
+  }
+  .chip {
+    background:rgba(255,255,255,0.05);
+    border-radius:8px;
+    padding:8px 14px;
+    font-size:1rem;
+    min-width:90px;
+    text-align:center;
+  }
+  .label {
+    margin-left:10px;
+    color:#eafafa;
+    font-weight:600;
+  }
+  .count {
+    padding:8px 14px;
+    border-radius:8px;
+    font-weight:700;
+    color:#fff;
+  }
+  @media (max-width:900px){
+    .container { grid-template-columns:1fr; }
+  }
+</style>
 </head>
 <body>
 
-  <div class="topbar" role="banner">
-    <div class="brand">
-      <div class="logo">LS</div>
-      <div>
-        <h1>LoRa Safety — Live Feed</h1>
-        <p class="subtitle">Real-time environmental telemetry from underground sensors</p>
-      </div>
-    </div>
-
-    <div class="controls" aria-hidden="false">
-      <div class="status" title="WebSocket connection status">
-        <div id="connDot" class="dot disconnected" aria-hidden="true"></div>
-        <div id="connText">Disconnected</div>
-      </div>
-      <!-- keep your exact link structure (no change) -->
-      <a href="/pg1.html" class="btn" title="Back to home">← Home</a>
-      <button id="clearBtn" class="btn" title="Remove older entries">Clear</button>
-    </div>
+<div class="topbar">
+  <h1>LoRa Safety — Live Feed</h1>
+  <div>
+    <span id="connDot" class="dot disconnected"></span>
+    <span id="connText">Disconnected</span>
+    <button id="clearBtn" class="btn">Clear</button>
   </div>
+</div>
 
-  <div class="container" role="main">
-    <section class="feed" aria-label="Live sensor feed">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div class="muted">Live sensor updates will appear below (most recent first)</div>
-        <div class="muted">Last update: <span id="lastUpdate">—</span></div>
-      </div>
-
-      <ul id="list"></ul>
-      <div id="empty" class="feed-empty">No data yet — waiting for the first packet…</div>
-    </section>
-
-    <aside class="sidebar" aria-label="Feed controls & stats">
-      <div style="margin-bottom:12px">
-        <div style="color:#9fdfe6; font-weight:700">Stream Info</div>
-        <div style="color:#9fb6bb">Connection & recent stats</div>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-        <div style="padding:10px; border-radius:10px; text-align:center; border:1px solid rgba(255,255,255,0.02)">
-          <div id="totalCount" style="font-size:1.2rem; font-weight:800; color:var(--accent-2)">0</div>
-          <div style="color:#9fb6bb; margin-top:6px">Total received</div>
-        </div>
-        <div style="padding:10px; border-radius:10px; text-align:center; border:1px solid rgba(255,255,255,0.02)">
-          <div id="liveCount" style="font-size:1.2rem; font-weight:800; color:var(--accent-2)">0</div>
-          <div style="color:#9fb6bb; margin-top:6px">Shown in feed</div>
-        </div>
-        <div style="padding:10px; border-radius:10px; text-align:center; border:1px solid rgba(255,255,255,0.02)">
-          <div id="goodCount" style="font-size:1.2rem; font-weight:800; color:var(--accent-2)">0</div>
-          <div style="color:#9fb6bb; margin-top:6px">Good</div>
-        </div>
-        <div style="padding:10px; border-radius:10px; text-align:center; border:1px solid rgba(255,255,255,0.02)">
-          <div id="badCount" style="font-size:1.2rem; font-weight:800; color:var(--accent-2)">0</div>
-          <div style="color:#9fb6bb; margin-top:6px">Warnings / Alerts</div>
-        </div>
-      </div>
-
-      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0;border-radius:2px" />
-
-      <div style="font-size:0.9rem;color:#9fb6bb">
-        <strong>Notes</strong>
-        <p style="margin:8px 0 0;font-size:0.86rem;color:#91b7bb">
-          This page connects to your backend WebSocket endpoint at <code>/ws</code>.
-        </p>
-      </div>
-    </aside>
-  </div>
+<div class="container">
+  <section class="feed">
+    <ul id="list"></ul>
+    <div id="empty" style="text-align:center;color:#777;padding:20px">No data yet...</div>
+  </section>
+</div>
 
 <script>
-  // PRESERVED: your original websocket logic and flow (only small change: read sen_5 and display it)
-  const MAX_ITEMS = 60;
-  const ul = document.getElementById('list');
-  const empty = document.getElementById('empty');
-  const lastUpdateEl = document.getElementById('lastUpdate');
-  const totalCountEl = document.getElementById('totalCount');
-  const liveCountEl = document.getElementById('liveCount');
-  const goodCountEl = document.getElementById('goodCount');
-  const badCountEl = document.getElementById('badCount');
-  const connDot = document.getElementById('connDot');
-  const connText = document.getElementById('connText');
+const MAX_ITEMS = 60;
+const ul = document.getElementById('list');
+const empty = document.getElementById('empty');
+const connDot = document.getElementById('connDot');
+const connText = document.getElementById('connText');
 
-  let totalCount = 0, goodCount = 0, badCount = 0;
+const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+const wsUrl = `${protocol}//${window.location.host}/ws`;
+const ws = new WebSocket(wsUrl);
 
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
-  const ws = new WebSocket(wsUrl);
+function setConnected(ok){
+  connDot.classList.toggle('connected',ok);
+  connDot.classList.toggle('disconnected',!ok);
+  connText.textContent = ok ? "Connected" : "Disconnected";
+}
+ws.onopen=()=>setConnected(true);
+ws.onclose=()=>setConnected(false);
+ws.onerror=(e)=>console.error("ws error",e);
 
-  function setConnected(isConnected){
-    connDot.classList.toggle('connected', isConnected);
-    connDot.classList.toggle('disconnected', !isConnected);
-    connText.textContent = isConnected ? 'Connected' : 'Disconnected';
-  }
+ws.onmessage = evt=>{
+  try{
+    const obj=JSON.parse(evt.data);
+    const s1=Number(obj.sen_1), s2=Number(obj.sen_2),
+          s3=Number(obj.sen_3), s4=Number(obj.sen_4),
+          s5=Number(obj.sen_5);
+    const label=obj.label||'—';
+    const li=document.createElement('li');
+    li.className='data-card';
+    const timeStr=new Date().toLocaleTimeString();
 
-  ws.onopen = () => { console.log("ws open"); setConnected(true); };
-  ws.onerror = (e) => { console.error("ws error", e); };
-  ws.onclose = () => { console.log("ws closed"); setConnected(false); };
-
-  ws.onmessage = evt => {
-    try {
-      const obj = JSON.parse(evt.data);
-      totalCount++; totalCountEl.textContent = totalCount;
-
-      // === only functional change: read sen_5 in addition to others ===
-      const s1 = Number(obj.sen_1);
-      const s2 = Number(obj.sen_2);
-      const s3 = Number(obj.sen_3);
-      const s4 = Number(obj.sen_4);
-      const s5 = Number(obj.sen_5); // new: show 5th sensor (if present)
-      const label = obj.label ?? '—';
-
-      // keep the same classification logic you had (unchanged)
-      let severity = 'ok';
-      if (![s1,s2,s3,s4,s5].every(v => Number.isFinite(v))) severity = 'bad';
-      else if (s1 > 80 || s2 > 80) severity = 'warn';
-      else severity = 'ok';
-
-      if (severity === 'ok') goodCount++; else badCount++;
-      goodCountEl.textContent = goodCount; badCountEl.textContent = badCount;
-
-      // build card HTML (same style for all sensors, one line)
-      const li = document.createElement('li');
-      li.className = 'data-card';
-      const timeStr = new Date().toLocaleString();
-
-      li.innerHTML = `
-        <div class="left">
-          <div class="badge-timestamp">${timeStr}</div>
-          <div style="min-width:0; display:flex; align-items:center;">
-            <div class="values">
-              <div class="chip">S1<br><span style="font-weight:800;color:#eafafa">${s1}</span></div>
-              <div class="chip">S2<br><span style="font-weight:800;color:#eafafa">${s2}</span></div>
-              <div class="chip">S3<br><span style="font-weight:800;color:#eafafa">${s3}</span></div>
-              <div class="chip">S4<br><span style="font-weight:800;color:#eafafa">${s4}</span></div>
-              <div class="chip">S5<br><span style="font-weight:800;color:#eafafa">${s5}</span></div>
-            </div>
-            <div class="label">Label: ${label}</div>
-          </div>
+    li.innerHTML=`
+      <div class="left">
+        <div class="badge-timestamp">${timeStr}</div>
+        <div class="values">
+          <div class="chip">S1<br><b>${s1}</b></div>
+          <div class="chip">S2<br><b>${s2}</b></div>
+          <div class="chip">S3<br><b>${s3}</b></div>
+          <div class="chip">S4<br><b>${s4}</b></div>
+          <div class="chip">S5<br><b>${s5}</b></div>
         </div>
-        <div class="right">
-          <div class="count">${severity === 'ok' ? 'OK' : (severity === 'warn' ? 'WARN' : 'ALERT')}</div>
-        </div>
-      `;
-
-      // color left border according to severity (unchanged)
-      if (severity === 'warn') li.style.borderLeft = '6px solid var(--warn)';
-      else if (severity === 'bad') li.style.borderLeft = '6px solid var(--bad)';
-      else li.style.borderLeft = '6px solid var(--good)';
-
-      ul.prepend(li);
-      empty.style.display = 'none';
-      liveCountEl.textContent = ul.children.length;
-      lastUpdateEl.textContent = timeStr;
-
-      if (ul.children.length > MAX_ITEMS) {
-        ul.removeChild(ul.lastChild);
-        liveCountEl.textContent = ul.children.length;
-      }
-
-    } catch (err) {
-      console.error('invalid ws message', err);
-    }
-  };
-
-  document.getElementById('clearBtn').addEventListener('click', () => {
-    ul.innerHTML = ''; totalCount = 0; goodCount = 0; badCount = 0;
-    totalCountEl.textContent = 0; goodCountEl.textContent = 0; badCountEl.textContent = 0;
-    liveCountEl.textContent = 0; empty.style.display = 'block'; lastUpdateEl.textContent = '—';
-  });
-
-  console.log('Connecting to', wsUrl);
+        <div class="label">Label: ${label}</div>
+      </div>
+      <div class="count">OK</div>`;
+    ul.prepend(li);
+    empty.style.display='none';
+    if(ul.children.length>MAX_ITEMS) ul.removeChild(ul.lastChild);
+  }catch(e){console.error(e);}
+};
+document.getElementById('clearBtn').onclick=()=>{
+  ul.innerHTML=''; empty.style.display='block';
+};
 </script>
 
 </body>
