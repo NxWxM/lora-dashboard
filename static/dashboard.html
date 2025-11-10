@@ -10,55 +10,152 @@
     --accent:#00bcd4; --accent-2:#00e5ff;
     --good:#28a745; --warn:#ffc107; --bad:#ff5252;
   }
+
   body {
     font-family:"Poppins","Segoe UI",sans-serif;
     background:linear-gradient(135deg,var(--bg-1),var(--bg-2));
-    color:var(--muted); margin:0; padding:20px;
+    color:var(--muted);
+    margin:0;
+    padding:20px;
   }
+
   .topbar {
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
   }
-  h1 { color:var(--accent-2); font-size:1.2rem; margin:0; }
+
+  h1 {
+    color:var(--accent-2);
+    font-size:1.2rem;
+    margin:0;
+  }
+
+  /* ===== Button style (for both <a> and <button>) ===== */
   .btn {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
     background:linear-gradient(90deg,var(--accent),var(--accent-2));
-    color:#041014; border:none; padding:8px 14px; border-radius:10px; font-weight:600;
+    color:#041014;
+    border:none;
+    padding:8px 14px;
+    border-radius:10px;
+    font-weight:600;
     cursor:pointer;
+    text-decoration:none;
+    font-family:inherit;
+    box-sizing:border-box;
+    transition:transform 0.1s ease, box-shadow 0.2s ease;
   }
+
+  .btn:hover {
+    transform:translateY(-1px);
+    box-shadow:0 0 8px rgba(0,229,255,0.5);
+  }
+
+  .btn:active {
+    transform:translateY(0);
+  }
+
+  .btn:focus {
+    outline:2px solid rgba(0,0,0,0.15);
+    outline-offset:2px;
+  }
+
+  /* Make <a> tags behave like buttons */
+  a.btn {
+    text-decoration:none;
+    color:#041014;
+  }
+
+  /* Remove browser default button styling */
+  button.btn {
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    background:none;
+    border:none;
+    padding:0;
+    font:inherit;
+  }
+
+  /* ====== Other styles ====== */
   .dot {
-    width:12px; height:12px; border-radius:50%;
-    display:inline-block; margin-right:6px;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    display:inline-block;
+    margin-right:6px;
   }
+
   .connected { background:var(--good); }
   .disconnected { background:var(--bad); }
+
   .container {
-    max-width:1200px; margin:auto;
-    display:grid; grid-template-columns: 1fr 360px; gap:20px;
+    max-width:1200px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:20px;
   }
+
   .feed {
     border:1px solid rgba(255,255,255,0.05);
-    border-radius:12px; padding:14px; min-height:60vh;
+    border-radius:12px;
+    padding:14px;
+    min-height:60vh;
   }
+
   ul#list {
-    list-style:none; padding:0; margin:0;
-    display:flex; flex-direction:column; gap:14px;
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
   }
+
   li.data-card {
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
     padding:16px 20px;
     background:rgba(255,255,255,0.03);
     border:1px solid rgba(255,255,255,0.05);
     border-radius:12px;
     width:100%;
     box-sizing:border-box;
+    transition:background 0.3s ease, box-shadow 0.3s ease;
   }
-  .left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+
+  /* 🌟 Highlight the newest (first) data card */
+  ul#list li.data-card:first-child {
+    background:rgba(0,229,255,0.12);
+    border:1px solid var(--accent-2);
+    box-shadow:0 0 12px rgba(0,229,255,0.4);
+  }
+
+  .left {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+
   .badge-timestamp {
-    font-size:0.85rem; color:#91b7bb;
+    font-size:0.85rem;
+    color:#91b7bb;
   }
+
   .values {
-    display:flex; gap:12px; flex-wrap:nowrap;
+    display:flex;
+    gap:12px;
+    flex-wrap:nowrap;
     justify-content:space-between;
   }
+
   .chip {
     background:rgba(255,255,255,0.05);
     border-radius:8px;
@@ -67,21 +164,28 @@
     min-width:90px;
     text-align:center;
   }
+
   .label {
     margin-left:10px;
     color:#eafafa;
     font-weight:600;
   }
+
   .count {
     padding:8px 14px;
     border-radius:8px;
     font-weight:700;
     color:#fff;
   }
-  @media (max-width:900px){
-    .container { grid-template-columns:1fr; }
+
+  @media (max-width:900px) {
+    .container {
+      grid-template-columns:1fr;
+    }
   }
 </style>
+
+
 </head>
 <body>
 
@@ -90,7 +194,7 @@
   <div>
     <span id="connDot" class="dot disconnected"></span>
     <span id="connText">Disconnected</span>
-    <button id="backBtn" class="btn" onclick="window.location.href='/pg1.html'">Back</button>
+    <a href="/pg1.html" id="backBtn" class="btn">Back</a>
     <button id="clearBtn" class="btn">Clear</button>
   </div>
 </div>
