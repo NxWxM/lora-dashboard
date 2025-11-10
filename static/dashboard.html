@@ -6,9 +6,14 @@
 <title>Live Sensor Data — Underground Safety</title>
 <style>
   :root {
-    --bg-1:#070708; --bg-2:#0f1316; --muted:#bfc9cc;
-    --accent:#00bcd4; --accent-2:#00e5ff;
-    --good:#28a745; --warn:#ffc107; --bad:#ff5252;
+    --bg-1:#070708;
+    --bg-2:#0f1316;
+    --muted:#bfc9cc;
+    --accent:#00bcd4;
+    --accent-2:#00e5ff;
+    --good:#28a745;
+    --warn:#ffc107;
+    --bad:#ff5252;
   }
 
   body {
@@ -32,46 +37,28 @@
     margin:0;
   }
 
-  /* ---------------------------
-     Normalize native button first
-     (do NOT remove background/padding here)
-     --------------------------- */
-  button.btn {
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    appearance:none;
-    border:none;        /* remove default border */
-    font:inherit;       /* inherit font properties */
-    box-sizing:border-box;
-    /* DO NOT set background or padding here — those come from .btn */
-  }
-
-  /* Make <a> behave like a button as well (normalize) */
-  a.btn {
-    text-decoration:none;
-    color:inherit;
-  }
-
-  /* ===== Button style (for both <a> and <button>) ===== */
+  /* ===== Unified Button Style (for both <a> and <button>) ===== */
   .btn {
     display:inline-flex;
     align-items:center;
     justify-content:center;
     background:linear-gradient(90deg,var(--accent),var(--accent-2));
-    color:#ffffff;                 /* visible on dark bg */
-    padding:8px 14px;              /* size consistent for both */
+    color:#041014;
+    border:none;
+    padding:8px 14px;
     border-radius:10px;
     font-weight:600;
     cursor:pointer;
     text-decoration:none;
     font-family:inherit;
     box-sizing:border-box;
-    transition:transform 0.12s ease, box-shadow 0.18s ease;
+    transition:transform 0.1s ease, box-shadow 0.2s ease;
+    margin-left:8px;
   }
 
   .btn:hover {
     transform:translateY(-1px);
-    box-shadow:0 0 8px rgba(0,229,255,0.45);
+    box-shadow:0 0 8px rgba(0,229,255,0.5);
   }
 
   .btn:active {
@@ -79,8 +66,28 @@
   }
 
   .btn:focus {
-    outline:2px solid rgba(0,0,0,0.12);
+    outline:2px solid rgba(0,0,0,0.15);
     outline-offset:2px;
+  }
+
+  /* Ensure <a> buttons have no underline */
+  a.btn {
+    text-decoration:none;
+    color:#041014;
+  }
+
+  /* Reset browser defaults for <button> */
+  button.btn {
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    border:none;
+    padding:8px 14px; /* must match .btn */
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#041014;
+    font-weight:600;
+    border-radius:10px;
+    cursor:pointer;
   }
 
   /* ====== Other styles ====== */
@@ -132,11 +139,11 @@
     transition:background 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* 🌟 Highlight the newest (first) data card */
+  /* 🌟 Highlight the newest data entry */
   ul#list li.data-card:first-child {
-    background:rgba(0,229,255,0.12);
+    background:rgba(0,229,255,0.15);
     border:1px solid var(--accent-2);
-    box-shadow:0 0 12px rgba(0,229,255,0.36);
+    box-shadow:0 0 12px rgba(0,229,255,0.5);
   }
 
   .left {
@@ -186,6 +193,7 @@
     }
   }
 </style>
+
 
 
 
