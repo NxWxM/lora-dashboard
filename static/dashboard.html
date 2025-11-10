@@ -32,27 +32,46 @@
     margin:0;
   }
 
+  /* ---------------------------
+     Normalize native button first
+     (do NOT remove background/padding here)
+     --------------------------- */
+  button.btn {
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    border:none;        /* remove default border */
+    font:inherit;       /* inherit font properties */
+    box-sizing:border-box;
+    /* DO NOT set background or padding here — those come from .btn */
+  }
+
+  /* Make <a> behave like a button as well (normalize) */
+  a.btn {
+    text-decoration:none;
+    color:inherit;
+  }
+
   /* ===== Button style (for both <a> and <button>) ===== */
   .btn {
     display:inline-flex;
     align-items:center;
     justify-content:center;
     background:linear-gradient(90deg,var(--accent),var(--accent-2));
-    color:#041014;
-    border:none;
-    padding:8px 14px;
+    color:#ffffff;                 /* visible on dark bg */
+    padding:8px 14px;              /* size consistent for both */
     border-radius:10px;
     font-weight:600;
     cursor:pointer;
     text-decoration:none;
     font-family:inherit;
     box-sizing:border-box;
-    transition:transform 0.1s ease, box-shadow 0.2s ease;
+    transition:transform 0.12s ease, box-shadow 0.18s ease;
   }
 
   .btn:hover {
     transform:translateY(-1px);
-    box-shadow:0 0 8px rgba(0,229,255,0.5);
+    box-shadow:0 0 8px rgba(0,229,255,0.45);
   }
 
   .btn:active {
@@ -60,25 +79,8 @@
   }
 
   .btn:focus {
-    outline:2px solid rgba(0,0,0,0.15);
+    outline:2px solid rgba(0,0,0,0.12);
     outline-offset:2px;
-  }
-
-  /* Make <a> tags behave like buttons */
-  a.btn {
-    text-decoration:none;
-    color:#041014;
-  }
-
-  /* Remove browser default button styling */
-  button.btn {
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    appearance:none;
-    background:none;
-    border:none;
-    padding:0;
-    font:inherit;
   }
 
   /* ====== Other styles ====== */
@@ -134,7 +136,7 @@
   ul#list li.data-card:first-child {
     background:rgba(0,229,255,0.12);
     border:1px solid var(--accent-2);
-    box-shadow:0 0 12px rgba(0,229,255,0.4);
+    box-shadow:0 0 12px rgba(0,229,255,0.36);
   }
 
   .left {
@@ -184,6 +186,7 @@
     }
   }
 </style>
+
 
 
 </head>
