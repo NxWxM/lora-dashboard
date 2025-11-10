@@ -7,8 +7,10 @@ from starlette.status import HTTP_404_NOT_FOUND
 import asyncio
 import json
 import sqlite3
+from sqlite3 import DATE,TIME
 import datetime
 import os 
+from sqlalchemy import create_engine, text
 
 # --- Pydantic Model for Data Integrity (Requires 'pydantic' in requirements.txt) ---
 class SensorData(BaseModel):
@@ -59,19 +61,25 @@ async def get_dashboard():
 
 
 # --- Database Setup ---
-DB_PATH = "sensor.db"
-conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-c = conn.cursor()
-c.execute("""CREATE TABLE IF NOT EXISTS sensor_data (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    sensor_1 FLOAT,
-    sensor_2 FLOAT,
-    sensor_3 FLOAT,
-    sensor_4 FLOAT,
-    sensor_5 FLOAT,
-    label TEXT
-)""")
-conn.commit()    
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set")
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
+with engine.begin() as conn:
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS sensor_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT,
+        time TEXT,
+        sensor_1 FLOAT,
+        sensor_2 FLOAT,
+        sensor_3 FLOAT,
+        sensor_4 FLOAT,
+        sensor_5 FLOAT,
+        label TEXT
+    )""")
+    conn.commit()    
 
 # --- WebSocket Endpoint ---
 @app.websocket("/ws")
@@ -109,8 +117,8 @@ async def post_sensor(data: SensorData):
     # 2. Save data to the database
     try:
         c.execute(
-            "INSERT INTO sensor_data (sensor_1, sensor_2, sensor_3, sensor_4, sensor_5, label) VALUES (?, ?, ?, ?, ?,?)",
-            (payload["sen_1"], payload["sen_2"], payload["sen_3"], payload["sen_4"],payload["sen_5"], payload["label"])
+            "INSERT INTO sensor_data (date, time, sensor_1, sensor_2, sensor_3, sensor_4, sensor_5, label) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
+            (DATE("now"),TIME("now"),payload["sen_1"], payload["sen_2"], payload["sen_3"], payload["sen_4"],payload["sen_5"], payload["label"])
         )
         conn.commit()
     except Exception as e:
