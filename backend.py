@@ -7,7 +7,6 @@ from starlette.status import HTTP_404_NOT_FOUND
 import asyncio
 import json
 import sqlite3
-from sqlite3 import DATE,TIME
 import datetime
 import os 
 from sqlalchemy import create_engine, text
@@ -79,7 +78,6 @@ with engine.begin() as conn:
         sensor_5 FLOAT,
         label TEXT
     )""")
-    conn.commit()    
 
 # --- WebSocket Endpoint ---
 @app.websocket("/ws")
@@ -109,18 +107,29 @@ async def websocket_endpoint(ws: WebSocket):
 async def post_sensor(data: SensorData):
     
     payload = data.dict()
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H:%M:%S")
 
     # 1. Log the received data
-    print(f"[POST] {timestamp} Received data: {payload}")
+    print(f"[POST] {now.strftime('%Y-%m-%d %H:%M:%S')} Received data: {payload}")
     
     # 2. Save data to the database
     try:
-        c.execute(
-            "INSERT INTO sensor_data (date, time, sensor_1, sensor_2, sensor_3, sensor_4, sensor_5, label) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
-            (DATE("now"),TIME("now"),payload["sen_1"], payload["sen_2"], payload["sen_3"], payload["sen_4"],payload["sen_5"], payload["label"])
-        )
-        conn.commit()
+        with engine.begin() as conn:
+            conn.execute(
+                text("INSERT INTO sensor_data (date, time, sensor_1, sensor_2, sensor_3, sensor_4, sensor_5, label) VALUES (:date, :time, :s1, :s2, :s3, :s4, :s5, :label)"),
+                {
+                    "date": date_str,
+                    "time": time_str,
+                    "s1": payload["sen_1"],
+                    "s2": payload["sen_2"],
+                    "s3": payload["sen_3"],
+                    "s4": payload["sen_4"],
+                    "s5": payload["sen_5"],
+                    "label": payload["label"],
+                },
+            )
     except Exception as e:
         print(f"[DB] Database insertion error: {e}")
 
