@@ -63,22 +63,23 @@ async def get_dashboard():
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set")
+
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
 with engine.begin() as conn:
-    c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS sensor_data (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        time TEXT,
-        sensor_1 FLOAT,
-        sensor_2 FLOAT,
-        sensor_3 FLOAT,
-        sensor_4 FLOAT,
-        sensor_5 FLOAT,
-        label TEXT
-    )""")
-
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS sensor_data (
+            id SERIAL PRIMARY KEY,
+            date TEXT,
+            time TEXT,
+            sensor_1 FLOAT,
+            sensor_2 FLOAT,
+            sensor_3 FLOAT,
+            sensor_4 FLOAT,
+            sensor_5 FLOAT,
+            label TEXT
+        )
+    """))
 # --- WebSocket Endpoint ---
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):

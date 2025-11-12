@@ -5,3 +5,4 @@ python-multipart   # Needed for FastAPI to handle form/JSON data
 sqlalchemy
 psycopg2-binary
 python-dotenv
+asyncpg
