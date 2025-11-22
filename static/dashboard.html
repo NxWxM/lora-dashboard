@@ -205,7 +205,7 @@
   <div>
     <span id="connDot" class="dot disconnected"></span>
     <span id="connText">Disconnected</span>
-    <a href="/pg1.html" id="backBtn" class="btn">Back</a>
+    <a href="/channel_dashboard" id="backBtn" class="btn">Back</a>
     <button id="clearBtn" class="btn">Clear</button>
   </div>
 </div>
@@ -218,6 +218,7 @@
 </div>
 
 <script>
+
 const MAX_ITEMS = 5;
 const ul = document.getElementById('list');
 const empty = document.getElementById('empty');
@@ -237,13 +238,21 @@ ws.onopen=()=>setConnected(true);
 ws.onclose=()=>setConnected(false);
 ws.onerror=(e)=>console.error("ws error",e);
 
+const params = new URLSearchParams(window.location.search);
+const value = Number(params.get("channel"));
+console.log("Received channel:", value);
+
 ws.onmessage = evt=>{
   try{
     const obj=JSON.parse(evt.data);
     const s1=Number(obj.sen_1), s2=Number(obj.sen_2),
           s3=Number(obj.sen_3), s4=Number(obj.sen_4),
-          s5=Number(obj.sen_5);
+          s5=Number(obj.sen_5),chan=Number(obj.channel);
     const label=obj.label||'—';
+
+    // *** ONLY UPDATE IF CHANNEL == value ***
+    if (chan !== value) return;
+
     const li=document.createElement('li');
     li.className='data-card';
     const timeStr=new Date().toLocaleTimeString();
@@ -266,9 +275,11 @@ ws.onmessage = evt=>{
     if(ul.children.length>MAX_ITEMS) ul.removeChild(ul.lastChild);
   }catch(e){console.error(e);}
 };
+
 document.getElementById('clearBtn').onclick=()=>{
   ul.innerHTML=''; empty.style.display='block';
 };
+
 </script>
 
 </body>

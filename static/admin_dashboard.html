@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#0f1724; --muted:#92a0b3; --accent:#4f9ef6; --glass: rgba(255,255,255,0.04);
+      --radius:12px; --gap:18px; --nav-w:220px;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#061021 0%, #081426 100%);color:#e6eef8;min-height:100vh}
+    .app{display:flex;min-height:100vh}
+
+    /* sidebar */
+    nav{width:var(--nav-w);padding:28px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);backdrop-filter: blur(6px)}
+    .brand{font-weight:700;font-size:1.1rem;margin-bottom:24px;color:var(--accent)}
+    .nav-list{display:flex;flex-direction:column;gap:12px}
+    .btn{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:inherit;text-decoration:none;cursor:pointer;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.04);}
+    .btn:hover{background:var(--card)}
+    .btn.active{background:linear-gradient(90deg, rgba(79,158,246,0.12), rgba(79,158,246,0.06));box-shadow:0 6px 20px rgba(79,158,246,0.06);border-color:rgba(79,158,246,0.18)}
+
+    /* main */
+    main{flex:1;padding:28px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .search{background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:1fr 200px;gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.02)}
+    .card h3{margin:0 0 12px 0}
+
+    /* content areas */
+    .content-area{display:none}
+    .content-area.active{display:block}
+
+    /* small helpers */
+    .row{display:flex;gap:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:0.95rem}
+    .muted{color:var(--muted);font-size:0.95rem}
+
+    /* responsive */
+    @media (max-width:880px){
+      nav{display:none}
+      .grid{grid-template-columns:1fr}
+    }
+    .search-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .chart-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--gap);
+      margin-top: 15px;
+    }
+    .chart-card-item {
+      background: rgba(255,255,255,0.02);
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    .chart-card-item h4 {
+      margin: 0 0 8px 0;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <nav>
+      <div class="brand">MySite — Admin</div>
+      <div class="nav-list" role="navigation" aria-label="Admin navigation">
+        <button class="btn active" data-target="home" id="nav-home">🏠 Home</button>
+        <button class="btn" data-target="inform" id="nav-inform">📢 Inform</button>
+        <button class="btn" data-target="employees" id="nav-employees">👥 Employees</button>
+        <button class="btn" data-target="maintenance" id="nav-maintenance">🛠 Maintenance</button>
+      </div>
+      <div style="margin-top:28px" class="muted">Logged in as <strong>admin</strong></div>
+    </nav>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h2 style="margin:0">Admin Dashboard</h2>
+          <div class="muted">Quick overview and controls</div>
+        </div>
+        <div class="row">
+          <input class="search" placeholder="Search..." />
+          <form action="/logout" method="POST" style="display:inline;">
+            <button type="submit" class="btn" id="logout" style="all:unset; cursor:pointer;">
+                Log out
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="grid">
+      <section>
+
+        
+          <div id="home" class="content-area active card">
+            <h3>Graphical Analysis</h3>
+            <div class="muted" style="margin-bottom: 10px;">Real-time analysis of underground sensor data.</div>
+
+            <div class="chart-grid-container" id="chart-container-wrapper">
+
+              <div class="chart-card-item">
+                <h4>Temperature (°C)</h4>
+                <div style="height: 200px;">
+                  <canvas id="tempChart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card-item">
+                <h4>Humidity (%)</h4>
+                <div style="height: 200px;">
+                  <canvas id="humidityChart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card-item">
+                <h4>Gas 1 (CO)</h4>
+                <div style="height: 200px;">
+                  <canvas id="gas1Chart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card-item">
+                <h4>Gas 2 (Methane - CH₄)</h4>
+                <div style="height: 200px;">
+                  <canvas id="gas2Chart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card-item">
+                <h4>Gas 3 (Hydrogen Sulfide - H₂S)</h4>
+                <div style="height: 200px;">
+                  <canvas id="gas3Chart"></canvas>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        
+          <div id="inform" class="content-area card">
+            <h3>Inform</h3>
+            <p class="muted">Notifications / messages for employees or users.</p>
+            <form id="informForm" style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+              <input name="title" placeholder="Notification title" />
+              <textarea name="body" rows="4" placeholder="Message body"></textarea>
+              <div style="display:flex;gap:8px">
+                <button class="btn" type="button" id="sendInform">Send</button>
+                <button class="btn" type="reset">Reset</button>
+              </div>
+            </form>
+          </div>
+        
+
+        
+          <div id="employees" class="content-area card">
+            <div class="grid" style="max-width:1300px; margin:0 auto; grid-template-columns:1.5fr 360px; gap:20px; width:100%;">
+
+              <div>
+                <div class="card">
+                    <h3>Find Employee</h3>
+                    <div class="search-container">
+                      <input id="search-input" class="search" placeholder="Search username..." />
+                      <button id="search-btn" class="btn">Search</button>
+                    </div>
+
+                    <div style="margin-top:16px; text-align:center;">
+                      <img id="emp-photo" src="" style="width:100px;height:100px;background:#333;border-radius:12px;margin:0 auto 12px auto; display:block;" alt="Profile" />
+                      <p class="muted">Profile Photo</p>
+                    </div>
+
+                    <div style="margin-top:16px;display:flex;flex-direction:column;gap:6px;">
+                      <label>Name: <span id="emp-name" style="font-weight:bold"></span></label>
+                      <label>Birthday: <span id="emp-dob" style="font-weight:bold"></span></label>
+                      <label>Role: <span id="emp-role" style="font-weight:bold"></span></label>
+                      <label>Age: <span id="emp-age" style="font-weight:bold"></span></label>
+                    </div>
+
+                    <p id="error-msg" style="color:red; display:none;"></p>
+                </div>
+              </div>
+
+              <div>
+                <aside class="card">
+                  <h3>Quick actions</h3>
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                    <button class="btn" id="exportCSV">Export employees</button>
+                    <button class="btn" id="clearEvents">Clear events</button>
+                  </div>
+                </aside>
+
+                <div class="card" style="margin-top:18px;">
+                  <h3>Employees</h3>
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                    <input id="newName" class="search" placeholder="Name" />
+                    <input id="newBirthday" class="search" placeholder="Birthday(yyyy-mm-dd)" />
+                    <input id="newRole" class="search" placeholder="Role" />
+                  </div>
+                  <div style="margin-top:16px;display:flex;">
+                    <button class="btn" id="addEmployee">Add</button>
+                  </div>
+                  
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        
+
+        
+          <div id="maintenance" class="content-area card">
+            <h3>Maintenance</h3>
+            <p class="muted">Create maintenance tasks or view status.</p>
+            <form id="maintForm" style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+              <input name="task" placeholder="Task title" />
+              <input name="due" type="date" />
+              <div style="display:flex;gap:8px">
+                <button class="btn" type="button" id="createTask">Create</button>
+                <button class="btn" type="reset">Reset</button>
+              </div>
+            </form>
+          </div>
+
+
+        </section>
+        </div>
+
+    </main>
+  </div>
+
+  <script>
+    // --- CHART LOGIC ---
+
+    let charts = {};
+
+    const CHART_CONFIGS = [
+        { id: 'tempChart', label: 'Temperature', color: 'rgba(255, 99, 132, 1)', dataKey: 'temperature', yLabel: '°C' },
+        { id: 'humidityChart', label: 'Humidity', color: 'rgba(54, 162, 235, 1)', dataKey: 'humidity', yLabel: '%' },
+        { id: 'gas1Chart', label: 'Gas 1 (CO)', color: 'rgba(255, 206, 86, 1)', dataKey: 'gas1', yLabel: 'PPM' },
+        { id: 'gas2Chart', label: 'Gas 2 (CH₄)', color: 'rgba(75, 192, 192, 1)', dataKey: 'gas2', yLabel: 'PPM' },
+        { id: 'gas3Chart', label: 'Gas 3 (H₂S)', color: 'rgba(153, 102, 255, 1)', dataKey: 'gas3', yLabel: 'PPM' },
+    ];
+
+    function createChart(id, labels, data, config) {
+        const ctx = document.getElementById(id);
+        if (!ctx) return null;
+
+        return new Chart(ctx.getContext("2d"), {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: config.label,
+                    data: data,
+                    fill: false,
+                    borderColor: config.color,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    spanGaps: false,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: {
+                        type: 'category',
+                        title: { display: true, text: 'Time' },
+                        ticks: { color: 'var(--muted)' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: config.yLabel },
+                        ticks: { color: 'var(--muted)' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                }
+            }
+        });
+    }
+
+    async function loadChartData() {
+        Object.values(charts).forEach(chart => chart.destroy());
+        charts = {};
+
+        const wrapper = document.getElementById("chart-container-wrapper");
+        wrapper.insertAdjacentHTML('afterbegin', '<p class="muted" style="text-align:center; padding: 50px;">Loading charts...</p>');
+
+        try {
+            const res = await fetch("/api/chart");
+
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+            const json = await res.json();
+            if (!json.labels) throw new Error("Missing 'labels'");
+
+            const dataMap = {
+                temperature: json.temperature,
+                humidity: json.humidity,
+                gas1: json.gas1,
+                gas2: json.gas2,
+                gas3: json.gas3,
+            };
+
+            wrapper.querySelector('p')?.remove();
+
+            CHART_CONFIGS.forEach(config => {
+                const dataArray = dataMap[config.dataKey];
+
+                if (dataArray && Array.isArray(dataArray)) {
+                    charts[config.id] = createChart(config.id, json.labels, dataArray, config);
+                } else {
+                    const chartItem = document.getElementById(config.id)?.closest('.chart-card-item');
+                    if (chartItem) {
+                        chartItem.innerHTML = `<h4 style="color:red;">${config.label}</h4><p class="muted">Data unavailable for this sensor.</p>`;
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error("Error loading chart data:", error);
+            wrapper.querySelector('p')?.remove();
+            wrapper.insertAdjacentHTML('afterbegin', `<p style="color: red; text-align:center; padding: 50px;">Failed to load chart data. (${error.message})</p>`);
+        }
+    }
+
+    window.onload = loadChartData;
+
+    // Navigation
+    document.querySelectorAll('nav .btn').forEach(b =>
+        b.addEventListener('click', (e)=>{
+            document.querySelectorAll('nav .btn').forEach(x=>x.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            const target = e.currentTarget.dataset.target;
+            document.querySelectorAll('.content-area').forEach(c=>c.classList.remove('active'));
+            document.getElementById(target).classList.add('active');
+        })
+    );
+
+    // Employees Add
+    const nameInput = document.getElementById("newName");
+    const birthdayInput = document.getElementById("newBirthday");
+    const roleInput = document.getElementById("newRole");
+    const addBtn = document.getElementById("addEmployee");
+
+    addBtn.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        const birthday = birthdayInput.value.trim();
+        const role = roleInput.value.trim();
+
+        if (!name || !birthday || !role) {
+        alert("Please fill all fields");
+        return;
+        }
+
+        try {
+        const response = await fetch("/api/add_employees", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+            name: name,
+            birthday: birthday,
+            role: role,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert("Failed: " + result.error);
+            return;
+        }
+        if (result.status === "Employee already exists") {
+            alert("Employee already exists!");
+            return;
+        }else if (result.status !== "Employee added successfully") {
+            alert("Employee added successfully!");
+            return;
+        }
+    
+
+        // Clear inputs
+        nameInput.value = "";
+        birthdayInput.value = "";
+        roleInput.value = "";
+
+        } catch (error) {
+        console.error(error);
+        alert("Error adding employee");
+        }
+    });
+
+    // Inform
+    document.getElementById('sendInform').addEventListener('click', ()=>{
+      const title = document.querySelector('#informForm [name=title]').value.trim();
+      const body = document.querySelector('#informForm [name=body]').value.trim();
+      if(!title||!body){alert('Add title and body');return}
+      alert("Message saved (demo only)");
+      document.querySelector('#informForm').reset();
+    });
+
+    // Maintenance
+    document.getElementById('createTask').addEventListener('click', ()=>{
+      const t=document.querySelector('#maintForm [name=task]').value.trim();
+      const d=document.querySelector('#maintForm [name=due]').value;
+      if(!t||!d){alert('Fill task and due date');return}
+      alert("Task saved (demo only)");
+      document.querySelector('#maintForm').reset();
+    });
+
+    // Export CSV
+    document.getElementById('exportCSV').addEventListener('click', ()=>{
+      const rows = [['Name','Email','Role']];
+      Array.from(empList.rows).forEach(r=>rows.push([
+        r.cells[0].textContent,
+        r.cells[1].textContent,
+        r.cells[2].textContent
+      ]));
+      const csv = rows.map(r=>r.join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download='employees.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Employee Search
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-input');
+    const errorMsg = document.getElementById('error-msg');
+
+    const updateProfile = (data) => {
+      document.getElementById('emp-name').textContent = data.name;
+      document.getElementById('emp-dob').textContent = data.birthday;
+      document.getElementById('emp-role').textContent = data.role;
+      document.getElementById('emp-age').textContent = data.age;
+      if(data.photoUrl) {
+          document.getElementById('emp-photo').src = data.photoUrl;
+          document.getElementById('emp-photo').style.background = 'transparent';
+      }
+    };
+
+    searchBtn.addEventListener('click', async () => {
+      const username = searchInput.value.trim();
+      errorMsg.style.display = 'none';
+
+      if (!username) {
+        alert("Please enter a username");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/employees?username=${encodeURIComponent(username)}`);
+
+
+        if (!response.ok) {
+          throw new Error('Employee not found');
+        }
+
+        const data = await response.json();
+        updateProfile(data);
+
+      } catch (error) {
+        errorMsg.textContent = "User not found!";
+        errorMsg.style.display = 'block';
+        updateProfile({name: '', birthday: '', role: '', age: ''});
+      }
+    });
+  </script>
+
+</body>
+</html>

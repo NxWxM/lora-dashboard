@@ -5,82 +5,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LoRa-based Safety System for Underground Miners</title>
   <style>
+    /* * Define variables for better theme management and consistency. 
+     * Using 'Montserrat' as a strong, modern heading font.
+     */
+    :root {
+      --color-primary: #00bcd4; /* Cyan/Teal Accent */
+      --color-primary-light: #00e5ff;
+      --color-dark: #0a0a0a;
+      --color-dark-bg: #1a1a1a;
+      --color-text: #e0e0e0;
+      --font-heading: 'Montserrat', sans-serif;
+      --font-body: 'Poppins', sans-serif;
+      --shadow-primary: 0 0 15px rgba(0, 188, 212, 0.5);
+      --shadow-hover: 0 0 30px rgba(0, 229, 255, 0.7);
+    }
+
+    /* GENERAL STYLES */
     body {
       margin: 0;
       padding: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-      color: #e0e0e0;
+      font-family: var(--font-body);
+      /* Use linear gradient with variables for consistency */
+      background: linear-gradient(135deg, var(--color-dark), var(--color-dark-bg));
+      color: var(--color-text);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh; /* Use min-height for better compatibility */
       text-align: center;
+      padding: 40px 20px; /* Add padding for small screens */
     }
 
+    /* HEADER STYLES */
     h1 {
-      font-size: 2.8rem;
-      color: #00bcd4;
-      text-shadow: 0 0 15px rgba(0, 188, 212, 0.5);
-      margin-bottom: 20px;
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 5vw, 3.2rem); /* Responsive font size */
+      color: var(--color-primary);
+      text-shadow: var(--shadow-primary);
+      margin-bottom: 25px;
+      letter-spacing: 1px;
     }
 
     p {
-      max-width: 700px;
-      line-height: 1.6;
+      max-width: 800px; /* Increased max-width for better flow */
+      line-height: 1.7;
       font-size: 1.1rem;
-      margin-bottom: 40px;
+      margin-bottom: 50px;
       color: #cfcfcf;
     }
 
+    /* BUTTON STYLES */
     .btn {
       display: inline-block;
-      padding: 14px 40px;
-      background: #00bcd4;
-      color: #0a0a0a;
+      padding: 15px 45px; /* Slightly larger padding */
+      background: var(--color-primary);
+      color: var(--color-dark);
       border: none;
       border-radius: 30px;
       text-decoration: none;
-      font-size: 1.2rem;
-      font-weight: 600;
-      box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
+      font-size: 1.25rem;
+      font-weight: 700; /* Bolder text */
+      box-shadow: var(--shadow-primary);
       transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .btn:hover {
-      background: #00e5ff;
-      box-shadow: 0 0 30px rgba(0, 229, 255, 0.7);
-      transform: scale(1.05);
+      background: var(--color-primary-light);
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px) scale(1.02); /* Lift and slightly scale */
     }
 
+    /* FIXED CORNER STYLES */
+    .fixed-right-corner {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      /* Style the link inside the corner separately to act as a secondary button */
+    }
+    .fixed-right-corner .btn {
+      padding: 10px 20px; /* Smaller padding for secondary action */
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: none;
+      background: transparent; /* Make it transparent */
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary); /* Add border for visibility */
+      box-shadow: none;
+    }
+    .fixed-right-corner .btn:hover {
+        background: rgba(0, 188, 212, 0.1); /* Slight background on hover */
+        box-shadow: var(--shadow-primary);
+        transform: none; /* Keep it fixed */
+    }
+
+    /* FOOTER STYLES */
     footer {
-      position: absolute;
+      position: fixed; /* Changed to fixed for better stability */
       bottom: 20px;
       font-size: 0.9rem;
       color: #777;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     }
-
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 2rem;
-      }
-      p {
-        font-size: 1rem;
-      }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 800px) {
+        .fixed-right-corner {
+            top: 15px;
+            right: 15px;
+        }
+        p {
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+        .btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+        }
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <h1>LoRa-based Safety System for Underground Miners</h1>
   <p>
     This project is designed to enhance the safety of underground miners by
     continuously monitoring environmental parameters such as gas levels,
-    temperature, and humidity using LoRa technology. The system provides
-    real-time data to ensure early detection of hazardous conditions and
-    quick response in case of emergencies.
+    temperature, and humidity using **LoRa (Long Range)** technology. The system provides
+    real-time data to ensure **early detection of hazardous conditions** and
+    quick response in case of emergencies, bringing next-generation safety to mining operations.
   </p>
-  <a href="/dashboard.html" class="btn">See Live Data</a>
+  
+  <div class="fixed-right-corner">
+    <a href="/login" class="btn">Admin Login</a>
+  </div>
+
+  <a href="/channel_dashboard" class="btn">See Live Data</a>
 
   <footer>© 2025 | Team Underground Safety | All Rights Reserved</footer>
 </body>

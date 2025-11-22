@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Channel Status Overview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* * Define variables for better theme management and consistency. */
+        :root {
+            --color-primary: #00bcd4; /* Cyan/Teal Accent */
+            --color-primary-light: #00e5ff;
+            --color-dark: #0a0a0a;
+            --color-dark-bg: #1a1a1a;
+            --color-text: #e0e0e0;
+            --color-safe: #4CAF50; /* Green */
+            --color-danger: #F44336; /* Red */
+            --color-not-connected: #444; /* Gray for inactive */
+
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+            --shadow-primary: 0 0 15px rgba(0, 188, 212, 0.5);
+            --shadow-hover: 0 0 30px rgba(0, 229, 255, 0.7);
+        }
+
+        /* GENERAL STYLES */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--color-dark), var(--color-dark-bg));
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* HEADER STYLES */
+        h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            color: var(--color-primary);
+            text-shadow: var(--shadow-primary);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* METRICS CONTAINER STYLES */
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .metric-card {
+            background-color: #2c2c2c;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            flex: 1;
+            min-width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card h2 {
+            font-size: 1rem;
+            color: #999;
+            margin: 0 0 10px 0;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        /* Connected Metric */
+        #connectedCard .metric-value {
+            color: var(--color-primary-light);
+        }
+
+        /* Danger Metric (Default/Safe State) */
+        #dangerCard {
+            border: 2px solid transparent; 
+        }
+        #dangerCard .metric-value {
+            color: #777; /* Default color when safe */
+        }
+
+        /* Danger Metric (Active State) */
+        #dangerCard.active-danger {
+            background-color: rgba(244, 67, 54, 0.15); /* Light red background */
+            border-color: var(--color-danger);
+            box-shadow: 0 0 20px var(--color-danger);
+            animation: pulse-danger-metric 2s infinite;
+        }
+
+        #dangerCard.active-danger .metric-value {
+            color: var(--color-danger);
+        }
+
+        @keyframes pulse-danger-metric {
+            0% { transform: scale(1.0); box-shadow: 0 0 10px var(--color-danger); }
+            50% { transform: scale(1.02); box-shadow: 0 0 25px var(--color-danger); }
+            100% { transform: scale(1.0); box-shadow: 0 0 10px var(--color-danger); }
+        }
+
+        /* GRID CONTAINER */
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* CHANNEL CARD STYLES */
+        .channel-card {
+            background-color: var(--color-dark-bg);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: default;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .channel-card.connected {
+            cursor: pointer;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 15px;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            text-transform: uppercase;
+        }
+
+        /* SAFE STATUS */
+        .status-safe {
+            background-color: var(--color-safe);
+            color: var(--color-dark);
+            box-shadow: 0 0 10px var(--color-safe);
+        }
+        .channel-card.connected.safe:hover {
+            border-color: var(--color-safe);
+            box-shadow: 0 0 20px var(--color-safe);
+            transform: translateY(-3px);
+        }
+
+        /* DANGER STATUS (Alarm) */
+        .status-danger {
+            background-color: var(--color-danger);
+            color: white;
+            box-shadow: 0 0 15px var(--color-danger), 0 0 30px var(--color-danger);
+            animation: pulse-danger 1.5s infinite;
+        }
+        .channel-card.connected.danger:hover {
+            border-color: var(--color-danger);
+            box-shadow: 0 0 30px var(--color-danger), 0 0 60px var(--color-danger);
+            transform: translateY(-3px);
+        }
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 15px var(--color-danger); }
+            50% { box-shadow: 0 0 30px var(--color-danger), 0 0 50px var(--color-danger); }
+            100% { box-shadow: 0 0 15px var(--color-danger); }
+        }
+
+        /* NOT CONNECTED STATUS */
+        .status-disconnected {
+            background-color: var(--color-not-connected);
+            color: #aaa;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .channel-card.disconnected {
+            opacity: 0.6;
+        }
+        
+        /* Channel Name */
+        .channel-name {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+        
+        /* Back Button (Fixed Position) */
+        .fixed-left-corner {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        .fixed-left-corner .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: none;
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            border-radius: 30px;
+            box-shadow: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .fixed-left-corner .btn:hover {
+            background: rgba(0, 188, 212, 0.1);
+            box-shadow: var(--shadow-primary);
+            transform: none;
+        }
+        
+        @media (max-width: 600px) {
+            .metrics-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .metric-card {
+                min-width: 100%;
+            }
+            .channel-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .metric-value {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-left-corner">
+        <a href="/" class="btn">← Back to Home</a>
+    </div>
+
+    <h1>Real-Time Channel Status</h1>
+    <p class="subtitle">Monitor the operational status and safety level of all underground mining sectors.</p>
+
+    <!-- METRICS CONTAINER -->
+    <div class="metrics-container">
+        <div class="metric-card" id="connectedCard">
+            <h2>Connected Channels</h2>
+            <div class="metric-value"><span id="connectedCount">0</span>/8</div>
+        </div>
+        <div class="metric-card" id="dangerCard">
+            <h2>Critical Danger Alerts</h2>
+            <div class="metric-value" id="dangerCount">0</div>
+        </div>
+    </div>
+    <!-- END METRICS CONTAINER -->
+
+    <div class="channel-grid" id="channelGrid">
+        <!-- Channel Cards will be generated here by JavaScript -->
+    </div>
+
+    <script>
+        // Data structure for all 8 channels
+        let channelState = {
+            1: { id: 1, name: "Channel_1 ", connected: true, status: "DANGEROUS", link: `/show_dashboard?channel=${encodeURIComponent(1)}` },
+            2: { id: 2, name: "Channel_2 ", connected: true, status: "SAFE", link: `/show_dashboard?channel=${encodeURIComponent(2)}` },
+            3: { id: 3, name: "Channel_3 ", connected: false },
+            4: { id: 4, name: "Channel_4 ", connected: false },
+            5: { id: 5, name: "Channel_5 ", connected: false },
+            6: { id: 6, name: "Channel_6 ", connected: false },
+            7: { id: 7, name: "Channel_7 ", connected: false },
+            8: { id: 8, name: "Channel_8 ", connected: false },
+        };
+
+                // Total number of channels
+        const TOTAL_CHANNELS = Object.keys(channelState).length;
+
+        const gridElement = document.getElementById('channelGrid');
+
+        // --- Metric Calculation and Update ---
+        function updateMetrics() {
+            const allChannels = Object.values(channelState);
+            const connectedChannels = allChannels.filter(c => c.connected).length;
+            const dangerChannels = allChannels.filter(c => c.connected && c.status === "DANGEROUS").length;
+
+            const connectedCountEl = document.getElementById('connectedCount');
+            const dangerCountEl = document.getElementById('dangerCount');
+            const dangerCardEl = document.getElementById('dangerCard');
+
+            // Update connected count
+            connectedCountEl.textContent = connectedChannels;
+            connectedCountEl.parentElement.innerHTML = `<span id="connectedCount">${connectedChannels}</span>/${TOTAL_CHANNELS}`;
+            
+            // Update danger count and apply conditional styling
+            dangerCountEl.textContent = dangerChannels;
+
+            if (dangerChannels > 0) {
+                dangerCardEl.classList.add('active-danger');
+            } else {
+                dangerCardEl.classList.remove('active-danger');
+            }
+        }
+        // --- End Metric Calculation and Update ---
+
+
+        //--- Channel Card Creation ---
+        function createCardElement(id, name) {
+            const card = document.createElement('div');
+            // Store the ID as a data attribute for easy lookup
+            card.setAttribute('data-channel-id', id);
+            card.id = `channel-card-${id}`;
+            card.className = 'channel-card';
+
+            const nameElement = document.createElement('div');
+            nameElement.className = 'channel-name';
+            nameElement.textContent = name;
+
+            const badge = document.createElement('div');
+            badge.className = 'status-badge';
+
+            card.appendChild(nameElement);
+            card.appendChild(badge);
+            
+            return card;
+        }
+
+        function updateCardContent(cardElement, data) {
+            const badge = cardElement.querySelector('.status-badge');
+            
+            // 1. Reset classes
+            cardElement.className = 'channel-card';
+            badge.className = 'status-badge';
+            
+            // 2. Apply classes and content based on connection status
+            if (data.connected) {
+                cardElement.classList.add('connected', data.status.toLowerCase());
+                badge.textContent = data.status;
+                badge.classList.add(data.status === "DANGEROUS" ? 'status-danger' : 'status-safe');
+
+                // 3. Update click handler (must be a function)
+                cardElement.onclick = () => {
+                    if (data.link) {
+                         window.location.href = data.link;
+                    }
+                };
+
+            } else {
+                cardElement.classList.add('disconnected');
+                badge.textContent = 'NOT CONNECTED';
+                badge.classList.add('status-disconnected');
+                cardElement.onclick = null; // Remove click handler for disconnected cards
+            }
+        }
+
+        function updateOrCreateChannelCard(data) {
+            const cardId = `channel-card-${data.id}`;
+            let cardElement = document.getElementById(cardId);
+
+            if (cardElement) {
+                // UPDATE LOGIC: Card exists, update its content and styling
+                updateCardContent(cardElement, data);
+            } else {
+                // CREATE LOGIC: Card does not exist, create a new element and append it
+                cardElement = createCardElement(data.id, data.name);
+                updateCardContent(cardElement, data); // Apply initial content/styles
+                gridElement.appendChild(cardElement);
+            }
+            
+            // Update the central state map
+            channelState[data.id] = data;
+            updateMetrics();
+        }
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        const ws = new WebSocket(wsUrl);
+        Object.values(channelState).forEach(data => {
+            updateOrCreateChannelCard(data);
+        });
+
+        
+
+        ws.onopen=()=>setConnected(true);
+        ws.onclose=()=>setConnected(false);
+        ws.onerror=(e)=>console.error("ws error",e);
+        ws.onmessage = evt=>{
+            try{
+                const obj=JSON.parse(evt.data);
+                const chan=Number(obj.channel);
+                const label=obj.label||'—';
+                const data={
+                    "id": chan,
+                    "name": `Channel_${chan}`,
+                    "connected": true,
+                    "status": label,
+                    "link": `/show_dashboard?channel=${encodeURIComponent(chan)}`
+                }
+                updateOrCreateChannelCard(data)
+            }catch(e){console.error(e);}
+        };
+    </script>
+</body>
+</html>
